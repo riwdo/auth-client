@@ -8,7 +8,8 @@ class SignIn extends React.Component {
 
         this.state = {
             username: "",
-            password: "", 
+            password: "",
+            jwt: "",
         }
     }
 
@@ -28,6 +29,7 @@ class SignIn extends React.Component {
         })
         .then((jsonResult) => {
             if (jsonResult.jwt !== undefined) {
+                console.log(jsonResult)
                 this.setState({ jwt: jsonResult.jwt })
             } else {
                 alert("Something went wrong during sign in. Try again.")
@@ -37,20 +39,21 @@ class SignIn extends React.Component {
 
     testAuth() {
         const requestOptions = {
-            method: 'GET',
-            headers: { 'Authorization': 'Bearer ' + this.state.jwt },
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + this.state.jwt, 'Content-Type': 'application/json' },
         };
-        console.log(requestOptions.body);
-        fetch("https://localhost:8080/testAuth", requestOptions)
+        fetch("https://localhost:8080/authenticationTest", requestOptions)
         .then((res) => {
-            if (res.ok) {
-                return res.json();
+            if (res.status === 401) {
+                return("Not Authorized!")
+            } else if (res.ok) {
+                return res.text();
+            } else {
+                throw new Error("Something went wrong when fetching from the backend")
             }
-            console.log(res)
-            throw new Error("Something went wrong when fetching from the backend")
         })
-        .then((jsonResult) => {
-            console.log(jsonResult)
+        .then((response) => {
+            alert(response)
         });
     }
 
@@ -64,14 +67,16 @@ class SignIn extends React.Component {
         console.log(requestOptions.body);
         fetch("https://localhost:8080/signUp", requestOptions)
         .then((res) => {
-            if (res.ok) {
-                return res.json();
+            if (res.status === 409) {
+                alert("User already exists")
+            } else if(res.ok) {
+                return res.text();
+            } else {
+                throw new Error("Something went wrong when fetching from the backend")
             }
-            console.log(res)
-            throw new Error("Something went wrong when fetching from the backend")
         })
-        .then((jsonResult) => {
-            console.log(jsonResult)
+        .then((response) => {
+            alert(response)
         });
     }
 
